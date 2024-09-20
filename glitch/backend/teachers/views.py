@@ -1,11 +1,9 @@
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from game.models import *
-from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from add_user_to_module import add_user_to_module
 
-@csrf_exempt
 @api_view(['POST'])
 def register_module(request):
     if request.method == 'POST':
@@ -84,7 +82,6 @@ def register_module(request):
 
     return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
 
-@csrf_exempt
 @api_view(['POST'])
 def register_domain(request):
     if request.method == 'POST':
@@ -104,8 +101,6 @@ def register_domain(request):
 
     return JsonResponse({'error': 'Only POST requests are allowed'}, status=405)
 
-
-@csrf_exempt
 @api_view(['POST'])
 def register_course(request):
     if request.method == 'POST':
@@ -197,9 +192,6 @@ def get_student_voortgang(request, student_id):
 
     return JsonResponse(data)
 
-
-
-@csrf_exempt
 @api_view(['POST'])
 def approve_assignment(request):
     if request.method == 'POST':
@@ -224,7 +216,6 @@ def approve_assignment(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
-@csrf_exempt
 @api_view(['POST'])
 def reject_assignment(request):
     if request.method == 'POST':

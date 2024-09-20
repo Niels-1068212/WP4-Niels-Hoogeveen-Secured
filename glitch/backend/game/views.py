@@ -6,9 +6,7 @@ from django.http import JsonResponse
 from rest_framework.permissions import IsAuthenticated
 from django.middleware.csrf import get_token
 from .models import User, Cursussen, Modules, HoofdOpdrachten, PuntenUitdagingen, ConceptOpdracht, Activiteiten, IngschrCursus, VoortgangPuntenUitdaging, Niveaus, VoortgangActiviteitenNiveaus, VoortgangConceptOpdrachten, VoortgangHoofdOpdrachten, Domeinen, IngschrDomein
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
-from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import ConceptOpdracht
 from django.contrib.auth.models import AnonymousUser
@@ -293,7 +291,6 @@ def get_csrf_token(request):
 
 
 @api_view(['POST'])
-@csrf_exempt
 @permission_classes([IsAuthenticated])
 def submit_text(request):
     if request.method == 'POST':
