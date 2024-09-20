@@ -6,10 +6,10 @@ import axiosInstance from './axiosInstance';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from './AuthProvider';
-import bannerimage from './src/images/image1.jpg';
+import bannerimage from './src/images/image1.jpg';  
 import Typography from '@mui/material/Typography';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const isMobile = width < 768;
 
 const RegistrationForm = () => {
@@ -20,6 +20,7 @@ const RegistrationForm = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
@@ -27,20 +28,45 @@ const RegistrationForm = () => {
 
   useEffect(() => {
     const get_domains = async () => {
-      try{
+      try {
         const response = await fetch(`http://192.168.56.1:8000/game/api/domains/`, {
-                method: 'GET',
-            });
-            const data = await response.json();
-            setDomains(data.domain_list);
-          } catch (error) {
-            console.error('Er is een fout opgetreden bij het ophalen van de gebruikers informatie', error);
-          }
+          method: 'GET',
+        });
+        const data = await response.json();
+        setDomains(data.domain_list);
+      } catch (error) {
+        console.error('Er is een fout opgetreden', error);
+      }
     };
-    get_domains()
-  },[])
+    get_domains();
+  }, []);
+
+  // Check
+  const checkPassword = (password) => {
+    const lengthCriteria = password.length >= 8;
+    const uppercaseCriteria = /[A-Z]/.test(password);
+    const lowercaseCriteria = /[a-z]/.test(password);
+    const numberCriteria = /\d/.test(password);
+    const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    let strength = 'Zwak';
+    if (lengthCriteria && uppercaseCriteria && lowercaseCriteria && numberCriteria && specialCharCriteria) {
+      strength = 'Zeer sterk';
+    } else if (lengthCriteria && (uppercaseCriteria || lowercaseCriteria) && (numberCriteria || specialCharCriteria)) {
+      strength = 'Sterk';
+    } else if (lengthCriteria) {
+      strength = 'Gemiddeld';
+    }
+
+    setPasswordStrength(strength);
+  };
 
   const handleSubmit = async () => {
+    if (passwordStrength === 'Zwak') {
+      setError('Het wachtwoord is te zwak. Gebruik minstens 8 tekens, een hoofdletter, een cijfer, en een speciaal teken.');
+      return;
+    }
+
     setLoading(true);
     try {
       const user = { first_name, last_name, username, email, password, chosen_domain };
@@ -113,10 +139,14 @@ const RegistrationForm = () => {
           <Input
             label="Wachtwoord"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              checkPassword(text);
+            }}
             secureTextEntry
             placeholder="Typ je wachtwoord"
           />
+          <Text style={styles.passwordStrengthText}>Sterkte wachtwoord: {passwordStrength}</Text>
           <RNPickerSelect
             onValueChange={(value) => setChosen_domain(value)}
             items={domains} 
@@ -212,6 +242,11 @@ const styles = StyleSheet.create({
   loginLink: {
     color: '#0000ff',
     textDecorationLine: 'underline',
+  },
+  passwordStrengthText: {
+    color: passwordStrength === 'Zwak' ? 'red' : 'green',
+    fontSize: 16,
+    marginBottom: 10,
   },
 });
 
